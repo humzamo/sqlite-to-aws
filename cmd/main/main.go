@@ -1,13 +1,27 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
+
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go/aws"
+	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/humzamo/sqlite-to-aws/internal/data"
-	_ "github.com/mattn/go-sqlite3"
+)
+
+const (
+	awsRegion  = "eu-west-2"
+	bucketName = "humza-mo-sqlite-to-aws"
+	path       = "client-data"
+	timeFormat = "2006-01-02-15:04:05.000"
 )
 
 func main() {
@@ -78,4 +92,32 @@ func main() {
 	}
 
 	fmt.Println(string(jsonResult))
+
+	// Create an AWS S3 configuration and client
+	cfg, err := config.LoadDefaultConfig(context.Background(),
+		config.WithRegion(awsRegion),
+	)
+	if err != nil {
+		fmt.Println("Error loading AWS configuration:", err)
+		return
+	}
+	client := s3.NewFromConfig(cfg)
+
+	fileName := fmt.Sprintf("client-data-%s.json", time.Now().Format(timeFormat))
+
+	uploadInput := &s3.PutObjectInput{
+		Bucket:      aws.String(bucketName),
+		Key:         aws.String(path + "/" + fileName),
+		Body:        aws.ReadSeekCloser(bytes.NewReader(jsonResult)),
+		ContentType: aws.String("application/json"),
+	}
+
+	// upload the JSON data to S3.
+	_, err = client.PutObject(context.Background(), uploadInput)
+	if err != nil {
+		fmt.Println("Error uploading JSON to S3:", err)
+		return
+	}
+
+	fmt.Printf("JSON file %s uploaded to S3 successfully\n", fileName)
 }
