@@ -25,6 +25,7 @@ The `CreateSampleTable()` function in the `data` package can also be used to cre
 - This script assumes a relatively simple table schema as defined in `models.go` get the row data. For another schema, these structs can be updated in the `data` package.
 - The details for the region, bucket, and path have been fixed in the `awsupload` package. These have been set using resources made in my AWS account for testing purposes.
 - The script assumes there are AWS credentials available on the local machine. These could be configurable elsewhere (e.g. using GitHub secrets).
+- The database is assumed to have a simple connection without any additional security/password.
 
 ## Further Improvements
 
