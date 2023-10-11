@@ -9,15 +9,15 @@ import (
 
 type Database struct {
 	client       *sql.DB
-	TableName    string
 	DatabaseName string
+	TableName    string
 }
 
-func NewDatabase(client *sql.DB, tableName string, databaseName string) Database {
+func NewDatabase(client *sql.DB, databaseName string, tableName string) Database {
 	return Database{
 		client:       client,
-		TableName:    tableName,
 		DatabaseName: databaseName,
+		TableName:    tableName,
 	}
 }
 

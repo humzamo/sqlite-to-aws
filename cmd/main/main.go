@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -26,23 +27,36 @@ func main() {
 	// 	log.Fatalf("CreateSampleTable: %v", err)
 	// }
 
-	db, err := sql.Open("sqlite3", "sample.db")
+	// check if the command-line arguments for the database and table names are provided
+	if len(os.Args) < 3 {
+		fmt.Println("missing database name and/or table name")
+		fmt.Println("Usage: go run main.go <database_name> <table_name>")
+		os.Exit(1)
+	}
+
+	databaseName := os.Args[1]
+	tableName := os.Args[2]
+
+	db, err := sql.Open("sqlite3", databaseName)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
+	fmt.Println("successfully connected to database", databaseName)
 
-	database := data.NewDatabase(db, "clients", "sample.db")
+	database := data.NewDatabase(db, databaseName, tableName)
 
 	columns, err := database.GetColumnData()
 	if err != nil {
 		log.Fatalf("error getting column data from database %s and table %s: %v", database.DatabaseName, database.TableName, err)
 	}
+	fmt.Println("successfully retrieved column data for table", database.TableName)
 
 	clientData, err := database.GetClientData()
 	if err != nil {
 		log.Fatalf("error getting column data from database %s and table %s: %v", database.DatabaseName, database.TableName, err)
 	}
+	fmt.Println("successfully retrieved table data for table", database.TableName)
 
 	tableData := data.TableData{
 		ColumnData: columns,
