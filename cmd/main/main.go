@@ -22,11 +22,6 @@ const (
 )
 
 func main() {
-	// err := data.CreateSampleTable()
-	// if err != nil {
-	// 	log.Fatalf("CreateSampleTable: %v", err)
-	// }
-
 	// check if the command-line arguments for the database and table names are provided
 	if len(os.Args) < 3 {
 		fmt.Println("missing database name and/or table name")
